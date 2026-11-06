@@ -97,11 +97,20 @@ async function run() {
     });
 
     // owner all projects
-    app.get('/my-projects', async (req, res) => {
-      const { ownerEmail } = req.query;
+    // app.get('/my-projects', async (req, res) => {
+    //   const { ownerEmail } = req.query;
 
+    //   const result = await projectCollection
+    //     .find({ ownerEmail })
+    //     .sort({ order: 1 })
+    //     .toArray();
+
+    //   res.json(result);
+    // });
+
+    app.get('/my-projects', async (req, res) => {
       const result = await projectCollection
-        .find({ ownerEmail })
+        .find({})
         .sort({ order: 1 })
         .toArray();
 
