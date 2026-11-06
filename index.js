@@ -33,11 +33,76 @@ async function run() {
     const projectCollection = db.collection("all-projects")
 
 
+    // active / inactive status update
+    app.patch('/projects/:id/status', async (req, res) => {
+      const { id } = req.params;
+      const { isActive } = req.body;
+
+      const result = await projectCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { isActive } }
+      );
+
+      res.json(result);
+    });
+
+
+    // project order update
+    app.patch('/projects/order', async (req, res) => {
+      const { projects } = req.body;
+
+      const operations = projects.map((project) => ({
+        updateOne: {
+          filter: { _id: new ObjectId(project.id) },
+          update: { $set: { order: project.order } }
+        }
+      }));
+
+      const result = await projectCollection.bulkWrite(operations);
+
+      res.json(result);
+    });
+
+
+    // delete project
+    app.delete('/projects/:id', async (req, res) => {
+      const { id } = req.params;
+
+      const result = await projectCollection.deleteOne({
+        _id: new ObjectId(id)
+      });
+
+      res.json(result);
+    });
+
+    // single project details by custom id
+    app.get('/projects/:id', async (req, res) => {
+      const { id } = req.params;
+
+      const result = await projectCollection.findOne({
+        id: id
+      });
+
+      res.json(result);
+    });
+
+    // active projects 
     app.get('/projects', async (req, res) => {
+      const result = await projectCollection
+        .find({ isActive: true })
+        .sort({ order: 1 })
+        .toArray();
+
+      res.json(result);
+    });
+
+    // owner all projects
+    app.get('/my-projects', async (req, res) => {
       const { ownerEmail } = req.query;
 
       const result = await projectCollection
         .find({ ownerEmail })
+        .sort({ order: 1 })
         .toArray();
 
       res.json(result);
