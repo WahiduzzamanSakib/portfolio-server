@@ -27,7 +27,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     const db = client.db("personal-portfolio")
     const projectCollection = db.collection("all-projects")
@@ -86,6 +86,19 @@ async function run() {
       res.json(result);
     });
 
+    //Edit Projects
+    app.patch('/projects/:id', async (req, res) => {
+      const { id } = req.params;
+
+      const result = await projectCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: req.body }
+      );
+
+      res.json(result);
+    });
+
+
     // active projects 
     app.get('/projects', async (req, res) => {
       const result = await projectCollection
@@ -124,7 +137,7 @@ async function run() {
     })
 
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // await client.close();
